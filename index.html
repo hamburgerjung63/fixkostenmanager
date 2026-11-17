@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#172b27"><title>Fixkostenmanager 2.0</title>
+<meta name="theme-color" content="#172b27"><title>Fixkostenmanager 2.1</title>
 <style>
 :root{--bg:#f3f5f2;--card:#fff;--ink:#1d2925;--muted:#68756f;--green:#1f6a50;--line:#e2e8e3;--red:#b64242;--gold:#a66b16}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -47,11 +47,11 @@ button{border:0;border-radius:11px;background:var(--green);color:white;padding:1
 <div class="card metric"><span>Monatlicher Überweisungsbetrag</span><strong id="mTransfer">0,00 €</strong><small>Aufgerundet · Überweisungstag einstellbar</small></div>
 <div class="card metric"><span>Aktueller Kontostand Vortag</span><strong id="mYesterday">–</strong><small id="yesterdayInfo">Berechneter Stand von gestern</small></div>
 </div>
-<div class="card" id="liquiditySummary"><h2>Zusätzliche Liquiditätsprognose</h2><div class="grid"><div class="metric"><span>Prognose heute</span><strong id="todayBalance">–</strong></div><div class="metric"><span>Überschuss / Fehlbetrag</span><strong id="surplus">–</strong></div><div class="metric"><span>Niedrigster Stand (12 Monate)</span><strong id="lowestBalance">–</strong></div><div class="metric"><span>Zusätzlicher Startbedarf</span><strong id="startShortfall">–</strong></div></div><p class="muted" id="forecastNote"></p></div>
 <div class="cols">
 <div class="card"><h2>Als Nächstes fällig</h2><div id="upcoming"></div></div>
-<div class="card"><h2>12-Monats-Übersicht</h2><p class="muted">Ab dem gewählten Kontostandsdatum: Jeder Monat übernimmt den Endstand des Vormonats. Im ersten Monat werden nur Buchungen ab dem Startdatum berücksichtigt.</p><div id="monthStatus" class="notice"></div><div class="tablewrap"><table class="monthtable"><thead><tr><th>Monat</th><th>Start</th><th>Überweisung</th><th>Abbuchungen</th><th>Endstand</th></tr></thead><tbody id="monthly"></tbody></table></div><p class="muted">Rot = negativer Monatsendstand; Grün = nichtnegativer Monatsendstand. Die Überweisung wird am 9. gebucht, Abbuchungen am selben Tag zuerst. Auch zwischen den Monatsenden kann der Kontostand niedriger sein.</p></div>
+<div class="card"><h2>12-Monats-Übersicht</h2><p class="muted">Ab dem gewählten Kontostandsdatum: Jeder Monat übernimmt den Endstand des Vormonats. Im ersten Monat werden nur Buchungen ab dem Startdatum berücksichtigt.</p><div id="monthStatus" class="notice"></div><div class="tablewrap"><table class="monthtable"><thead><tr><th>Monat</th><th>Start</th><th>Überweisung</th><th>Abbuchungen</th><th>Endstand</th></tr></thead><tbody id="monthly"></tbody></table></div><p class="muted">Rot = negativer Monatsendstand; Grün = nichtnegativer Monatsendstand. Die Überweisung wird am eingestellten Tag gebucht, Abbuchungen am selben Tag zuerst. Auch zwischen den Monatsenden kann der Kontostand niedriger sein.</p></div>
 </div>
+<div class="card" id="liquiditySummary"><h2>Zusätzliche Liquiditätsprognose</h2><div class="grid"><div class="metric"><span>Überschuss / Fehlbetrag zur Mindestdeckung</span><strong id="surplus">–</strong></div><div class="metric"><span>Niedrigster Stand (12 Monate)</span><strong id="lowestBalance">–</strong></div><div class="metric"><span>Zusätzlicher Startbedarf</span><strong id="startShortfall">–</strong></div></div><p class="muted" id="forecastNote"></p><div class="notice" id="liquidityWarning"></div></div>
 </section>
 <section id="costs" class="hidden">
 <div class="card">
@@ -85,7 +85,7 @@ button{border:0;border-radius:11px;background:var(--green);color:white;padding:1
 <div class="card"><h2>Numbers-Abgleich (manuell)</h2><p class="muted">Exportiere die Fixkosten als CSV und öffne sie in Numbers. Nach Änderungen exportiere die Tabelle aus Numbers als CSV und importiere sie hier wieder. Es erfolgt keine automatische Synchronisierung.</p><div class="row"><button onclick="exportCSV()">CSV für Numbers</button><button class="secondary" onclick="document.getElementById('csvFile').click()">CSV aus Numbers importieren</button></div><input id="csvFile" class="hidden" type="file" accept=".csv,text/csv" onchange="importCSV(event)"><div class="notice warning">Vor dem Import bitte eine JSON-Sicherung erstellen. Der CSV-Import ersetzt die Fixkostenliste, nicht die Kontoeinstellungen.</div></div><div class="card"><h2>Daten sichern und übertragen</h2><p class="muted">Deine Daten werden nur in diesem Browser auf diesem Gerät gespeichert. Exportiere regelmäßig eine Sicherung.</p><div class="row"><button onclick="exportData()">Daten exportieren</button><button class="secondary" onclick="document.getElementById('importFile').click()">Sicherung importieren</button></div><input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)"><p class="muted">Beim Import werden die vorhandenen App-Daten ersetzt.</p></div>
 <div class="card"><h2>Hinweise zur Berechnung</h2><p class="muted">Die jährlichen Fixkosten ergeben sich aus den geplanten Abbuchungen in den zwölf Monaten ab dem Startdatum. Die monatlichen Fixkosten sind der Durchschnitt (Jahreskosten ÷ 12). Der Überweisungsbetrag wird auf volle 5, 10, 25 oder 50 Euro aufgerundet und jeweils am eingestellten Überweisungstag eingeplant. Der einmal eingegebene Startbetrag wird über die geplanten Buchungen fortgeschrieben. Der Vortages-Endstand wird aus dem Startguthaben und allen geplanten Buchungen bis einschließlich gestern berechnet. Liegt gestern auf dem Startdatum, kann der Wert mit dem Startguthaben übereinstimmen. Der Wert ist keine Bankabfrage. Die Monatsübersicht zeigt zwölf Kalender-Monatsenden ab dem gewählten Startmonat; im ersten Monat nur Termine ab dem Startdatum. Bei gleicher Tagesfälligkeit rechnen wir vorsichtshalber Abbuchungen vor der Überweisung. Die zusätzliche Liquiditätsprognose kann kurzfristige Unterdeckungen anzeigen und verwendet weiterhin eine interne Mindestreserve von 100 Euro; sie beeinflusst den Überweisungsbetrag nicht.</p><p class="muted">Bankarbeitstage, Feiertage, variable Beträge und tatsächliche Buchungsverschiebungen werden nicht automatisch von der Bank abgefragt. Bitte gleiche die Termine mit deinen Vertragsunterlagen ab.</p><button class="danger" onclick="clearAll()">Alle Daten löschen</button></div>
 </section>
-<footer>Fixkostenmanager 2.0 · lokale Datenspeicherung auf diesem Gerät</footer>
+<footer>Fixkostenmanager 2.1 · lokale Datenspeicherung auf diesem Gerät</footer>
 </main>
 <script>
 const $=id=>document.getElementById(id), money=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(n)||0),pad=n=>String(n).padStart(2,'0'),dateStr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),fmt=d=>d instanceof Date&&!isNaN(d)?new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'long',year:'numeric'}).format(d):'–',months=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
@@ -103,10 +103,10 @@ function allEvents(start,end){return data.costs.filter(c=>c.active!=='no').flatM
 function isEnded(c,now){let last=c.endDate?parseDate(c.endDate):null;return !!last&&!isNaN(last)&&last<now}
 function forecast(start,end,transfer){let ev=allEvents(start,end).map(e=>({date:e.date,delta:-Number(e.cost.amount),kind:'debit',cost:e.cost,order:0}));for(let y=start.getFullYear();y<=end.getFullYear();y++)for(let m=0;m<12;m++){let d=clampDate(y,m,Number(data.transferDay));if(d>start&&d<end)ev.push({date:d,delta:transfer,kind:'transfer',order:1})}ev.sort((a,b)=>a.date-b.date||a.order-b.order);let cumulative=0,min=0;for(let e of ev){cumulative+=e.delta;min=Math.min(min,cumulative);e.cumulative=cumulative}return {events:ev,required:Math.max(0,-min+Number(data.buffer||0))}}
 function render(){normalize();const today=new Date();today.setHours(0,0,0,0);const base=data.asof?parseDate(data.asof):today;if(isNaN(base))return;const end=new Date(base.getFullYear()+1,base.getMonth(),base.getDate()),annual=allEvents(base,end).reduce((s,e)=>s+Number(e.cost.amount),0),average=annual/12,transfer=Math.ceil((average-0.00000001)/Number(data.roundingStep))*Number(data.roundingStep),bal=Number(data.balance)||0,result=forecast(base,end,transfer),required=result.required;
- const todayDelta=result.events.filter(e=>e.date<=today).reduce((s,e)=>s+e.delta,0),forecastToday=bal+todayDelta,lowest=bal+Math.min(0,...result.events.map(e=>e.cumulative)),surplus=bal-required;
- $('mAnnual').textContent=money(annual);$('mAverage').textContent=money(average);$('mTransfer').textContent=money(transfer);$('todayBalance').textContent=money(forecastToday);$('surplus').textContent=(surplus>=0?'+':'')+money(surplus);$('lowestBalance').textContent=money(lowest);$('startShortfall').textContent=money(Math.max(0,-surplus));
+ const lowest=bal+Math.min(0,...result.events.map(e=>e.cumulative)),surplus=bal-required;
+ $('mAnnual').textContent=money(annual);$('mAverage').textContent=money(average);$('mTransfer').textContent=money(transfer);$('surplus').textContent=(surplus>=0?'+':'−')+money(Math.abs(surplus));$('surplus').className=surplus<0?'negative':'positive';$('lowestBalance').textContent=money(lowest);$('lowestBalance').className=lowest<0?'negative':'positive';$('startShortfall').textContent=money(Math.max(0,-surplus));$('startShortfall').className=surplus<0?'negative':'positive';
  $('balance').value=data.balance??0;$('asof').value=data.asof||dateStr(today);$('transferDay').value=String(data.transferDay);$('roundingStep').value=String(data.roundingStep);
- $('forecastNote').textContent=base>today?'Achtung: Das Kontostandsdatum liegt in der Zukunft.':base<today?'Die heutige Zahl ist eine Prognose seit '+fmt(base)+'. Bereits tatsächlich gebuchte Abbuchungen oder Überweisungen können abweichen. Bitte Kontostand neu eingeben.':'Die heutige Prognose behandelt fällige Abbuchungen vorsichtshalber als noch offen. Die Überweisung am 9. gilt am Stichtag als bereits im eingegebenen Kontostand enthalten.';
+ $('forecastNote').textContent='Berechnete Planung ab '+fmt(base)+' mit einer Mindestreserve von '+money(data.buffer||0)+'. Ein Fehlbetrag kann durch eine kurzfristige Unterdeckung zwischen einzelnen Buchungen entstehen, selbst wenn alle Monatsendstände positiv sind. Es erfolgt keine Bankabfrage.';
  $('coverage').textContent='Monatliche Fixkosten '+money(average)+' · Überweisung '+money(transfer)+' (auf volle '+money(data.roundingStep)+' aufgerundet). Die Überweisung erfolgt jeweils am '+data.transferDay+'.';$('coverage').className='notice';
  $('upcoming').innerHTML=result.events.filter(e=>e.kind==='debit').slice(0,6).map(e=>`<div class="listitem"><div><b>${esc(e.cost.name)}</b><small>${fmt(e.date)} · ${esc(e.cost.category)}</small></div><div class="amount">${money(-e.delta)}</div></div>`).join('')||'<div class="empty">Keine Abbuchungen geplant.</div>';
   // Monatsübersicht: 12 vollständige Kalendermonats-Enden ab dem gewählten Startmonat.
@@ -126,6 +126,26 @@ function render(){normalize();const today=new Date();today.setHours(0,0,0,0);con
     html+=`<tr><td><b>${months[d.getMonth()]} ${d.getFullYear()}</b>${i===0?'<br><small>ab '+fmt(base)+'</small>':''}</td><td>${money(opening)}</td><td>${money(credit)}</td><td>−${money(debit)}</td><td class="${status}">${money(carry)}</td></tr>`;
   }
   $('monthly').innerHTML=html;
+  // Monatsendstände und Zwischenbuchungen getrennt prüfen – identische Ereignisse wie im Zahlungsplan.
+  const negativeInterim=monthlyForecast.events.filter(e=>bal+e.cumulative < -0.000001);
+  const negativeClosing=[];
+  for(let i=0;i<12;i++){
+    const next=new Date(base.getFullYear(),base.getMonth()+i+1,1);
+    const close=bal+monthlyForecast.events.filter(e=>e.date<next).reduce((sum,e)=>sum+e.delta,0);
+    if(close < -0.000001) negativeClosing.push(months[(base.getMonth()+i)%12]+' '+(base.getFullYear()+Math.floor((base.getMonth()+i)/12)));
+  }
+  const warn=$('liquidityWarning');
+  if(negativeClosing.length){
+    warn.className='notice warning';
+    warn.textContent='Achtung: Unterdeckung am Monatsende in '+negativeClosing.join(', ')+'. Bitte Zahlungsplan prüfen und Startguthaben oder Überweisung anpassen.';
+  }else if(negativeInterim.length){
+    warn.className='notice warning';
+    warn.textContent='Alle Monatsendstände sind gedeckt. Dazwischen gibt es jedoch '+negativeInterim.length+' Buchung(en) mit negativem Zwischenstand. Bitte im Zahlungsplan prüfen, ob Lastschriften vor der nächsten Überweisung scheitern könnten.';
+  }else{
+    warn.className='notice';
+    warn.textContent='Keine negative Unterdeckung im Zahlungsplan oder zum Monatsende innerhalb der 12-Monats-Übersicht.';
+  }
+
   const summary=$('monthStatus');
   summary.className='notice'+(negativeMonths?' warning':'');
   summary.textContent=negativeMonths?negativeMonths+' Monatsendstand/-stände sind negativ. Bitte Startguthaben oder Aufrundung prüfen.':'Alle zwölf Monatsendstände sind nichtnegativ. Zwischen einzelnen Buchungen kann dennoch eine Unterdeckung auftreten.';
