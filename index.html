@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#172b27"><title>Fixkostenmanager 2.3</title>
+<meta name="theme-color" content="#172b27"><title>Fixkostenmanager 2.4</title>
 <style>
 :root{--bg:#f3f5f2;--card:#fff;--ink:#1d2925;--muted:#68756f;--green:#1f6a50;--line:#e2e8e3;--red:#b64242;--gold:#a66b16}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -38,7 +38,7 @@ button{border:0;border-radius:11px;background:var(--green);color:white;padding:1
 <header><small>Persönliche Finanzübersicht</small><h1>Fixkostenmanager</h1><p>Dein Überblick über Abbuchungen, Rücklagen und Kontodeckung.</p></header>
 <main>
 <div class="tabs">
-<button class="tab active" data-tab="home">Übersicht</button><button class="tab" data-tab="costs">Fixkosten</button><button class="tab" data-tab="calendar">Zahlungsplan</button><button class="tab" data-tab="categories">Kategorien</button><button class="tab" data-tab="settings">Einstellungen</button>
+<button class="tab active" data-tab="home">Übersicht</button><button class="tab" data-tab="calendar">Zahlungsplan</button><button class="tab" data-tab="costs">Fixkosten</button><button class="tab" data-tab="categories">Kategorien</button><button class="tab" data-tab="settings">Einstellungen</button>
 </div>
 <section id="home">
 <div class="grid">
@@ -86,7 +86,7 @@ button{border:0;border-radius:11px;background:var(--green);color:white;padding:1
 <div class="card"><h2>Numbers-Abgleich (manuell)</h2><p class="muted">Exportiere die Fixkosten als CSV und öffne sie in Numbers. Nach Änderungen exportiere die Tabelle aus Numbers als CSV und importiere sie hier wieder. Es erfolgt keine automatische Synchronisierung.</p><div class="row"><button onclick="exportCSV()">CSV für Numbers</button><button class="secondary" onclick="document.getElementById('csvFile').click()">CSV aus Numbers importieren</button></div><input id="csvFile" class="hidden" type="file" accept=".csv,text/csv" onchange="importCSV(event)"><div class="notice warning">Vor dem Import bitte eine JSON-Sicherung erstellen. Der CSV-Import ersetzt die Fixkostenliste, nicht die Kontoeinstellungen.</div></div><div class="card"><h2>Daten sichern und übertragen</h2><p class="muted">Deine Daten werden nur in diesem Browser auf diesem Gerät gespeichert. Exportiere regelmäßig eine Sicherung.</p><div class="row"><button onclick="exportData()">Daten exportieren</button><button class="secondary" onclick="document.getElementById('importFile').click()">Sicherung importieren</button></div><input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)"><p class="muted">Beim Import werden die vorhandenen App-Daten ersetzt.</p></div>
 <div class="card"><h2>Hinweise zur Berechnung</h2><p class="muted">Die jährlichen Fixkosten ergeben sich aus den geplanten Abbuchungen in den zwölf Monaten ab dem Startdatum. Die monatlichen Fixkosten sind der Durchschnitt (Jahreskosten ÷ 12). Der eigene Überweisungsbetrag wird auf volle 5, 10, 25 oder 50 Euro aufgerundet und jeweils am eingestellten Überweisungstag eingeplant. Bis zu drei weitere monatliche Überweisungen werden als eigene Geldeingänge berücksichtigt. Ihre monatliche Gesamtsumme wird vom monatlichen Fixkosten-Durchschnitt abgezogen, bevor der eigene Überweisungsbetrag aufgerundet wird. Der eigene Überweisungsbetrag kann dabei nicht negativ werden. Der einmal eingegebene Startbetrag wird über die geplanten Buchungen fortgeschrieben. Der Vortages-Endstand wird aus dem Startguthaben und allen geplanten Buchungen bis einschließlich gestern berechnet. Liegt gestern auf dem Startdatum, kann der Wert mit dem Startguthaben übereinstimmen. Der Wert ist keine Bankabfrage. Die Monatsübersicht zeigt zwölf Kalender-Monatsenden ab dem gewählten Startmonat; im ersten Monat nur Termine ab dem Startdatum. Bei gleicher Tagesfälligkeit rechnen wir vorsichtshalber Abbuchungen vor der Überweisung. Die zusätzliche Liquiditätsprognose kann kurzfristige Unterdeckungen anzeigen und verwendet weiterhin eine interne Mindestreserve von 100 Euro; sie beeinflusst den Überweisungsbetrag nicht.</p><p class="muted">Bankarbeitstage, Feiertage, variable Beträge und tatsächliche Buchungsverschiebungen werden nicht automatisch von der Bank abgefragt. Bitte gleiche die Termine mit deinen Vertragsunterlagen ab.</p><button class="danger" onclick="clearAll()">Alle Daten löschen</button></div>
 </section>
-<footer>Fixkostenmanager 2.3 · lokale Datenspeicherung auf diesem Gerät</footer>
+<footer>Fixkostenmanager 2.4 · lokale Datenspeicherung auf diesem Gerät</footer>
 </main>
 <script>
 const $=id=>document.getElementById(id), money=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(n)||0),pad=n=>String(n).padStart(2,'0'),dateStr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),fmt=d=>d instanceof Date&&!isNaN(d)?new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'long',year:'numeric'}).format(d):'–',months=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
